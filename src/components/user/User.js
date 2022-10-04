@@ -90,6 +90,21 @@ export default function User() {
     }
   };
 
+  const onGifDeleteClick = async (gif) => {
+    const payload = {
+      email: userObj.email,
+      key: gif.name,
+    };
+    const deleteRes = await gifService.deleteGif(payload);
+    if (deleteRes) {
+      toast.success("Gif Deleted");
+      loadGifData();
+    } else {
+      toast.error("Gif Delete Error");
+    }
+    setShowModal(false);
+  };
+
   return (
     <>
       <nav className="w-full bg-slate-800 flex items-center justify-between py-2 px-8">
@@ -137,6 +152,7 @@ export default function User() {
           currentTags={userObj.gifsTags[selectedGif.name]}
           setShowModal={setShowModal}
           onGifSaveClick={onGifSaveClick}
+          onGifDeleteClick={onGifDeleteClick}
         />
       )}
       {isUploading && <UploadingModal />}

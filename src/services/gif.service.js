@@ -23,9 +23,29 @@ const updateGif = async (payload) => {
   return axios.post(url, payload, config);
 };
 
+const deleteGif = async (payload) => {
+  const { token } = utilService.getToken();
+  const url = API_URL + "/deleteGif";
+  const config = {
+    headers: { Authorization: `Bearer ${token}` },
+  };
+  return axios.post(url, payload, config);
+};
+
+const getGifByPublicUrl = async (publicUrl) => {
+  const { token } = utilService.getToken();
+  const url = API_URL + `/getGifPublicUrl/${publicUrl}`;
+  const config = {
+    headers: { Authorization: `Bearer ${token}` },
+  };
+  return axios.get(url, config);
+};
+
 const gifService = {
   uploadGif,
   updateGif,
+  deleteGif,
+  getGifByPublicUrl,
 };
 
 export default gifService;

@@ -8,7 +8,11 @@ export default function GifModal({
   currentTags,
   setShowModal,
   onGifSaveClick,
+  onGifDeleteClick,
 }) {
+  if (!currentTags) {
+    currentTags = [];
+  }
   const [newName, setNewName] = useState(name);
   const [tags, setTags] = useState(currentTags);
   const getGifTags = () => {
@@ -55,6 +59,10 @@ export default function GifModal({
     }
     onGifSaveClick({ gif, newName, tags });
     console.log(newName, tags);
+  };
+
+  const onDeleteClick = () => {
+    onGifDeleteClick(gif);
   };
   return (
     <div
@@ -109,6 +117,14 @@ export default function GifModal({
           />
         </div>
         <div className="text-right">
+          <button
+            className="py-1 px-8 bg-red-800 text-white rounded-md text-lg cursor-pointer font-semibold"
+            onClick={() => {
+              onDeleteClick();
+            }}
+          >
+            Delete
+          </button>
           <button
             className="py-1 px-8 bg-slate-800 text-white rounded-md text-lg cursor-pointer font-semibold"
             onClick={() => {

@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from "react";
-import { Link, useNavigate } from "react-router-dom";
+import { Link, useLocation, useNavigate } from "react-router-dom";
 import TOKEN_KEY from "../../constant/app";
 import authService from "../../services/auth.service";
 import toast, { Toaster } from "react-hot-toast";
@@ -8,9 +8,11 @@ export default function Login() {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const navigate = useNavigate();
+  const location = useLocation();
 
   useEffect(() => {
     //load user page if there is a token
+    console.log("location", location);
     const token = localStorage.getItem(TOKEN_KEY);
     if (token) {
       navigate("/user");
@@ -35,7 +37,11 @@ export default function Login() {
     if (email && password) {
       const res = await authService.authenticate(email, password);
       if (res) {
-        navigate("/user");
+        if (location.state && location.state.gifUrl) {
+          navigate(`/sharedView/${location.state.gifUrl}`);
+        } else {
+          navigate("/user");
+        }
       } else {
         toast.error("Invalid Credential");
       }

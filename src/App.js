@@ -4,6 +4,7 @@ import Register from "./components/register/Register";
 import { BrowserRouter, Navigate, Route, Routes } from "react-router-dom";
 import Error from "./Error";
 import User from "./components/user/User";
+import SharedGifView from "./components/sharedGifView/SharedGifView";
 
 function App() {
   return (
@@ -13,6 +14,10 @@ function App() {
         <Route path="login" element={<Login />}></Route>
         <Route path="register" element={<Register />}></Route>
         <Route path="user" element={<User />}></Route>
+        <Route
+          path="sharedView/:gifPublicLink"
+          element={<SharedGifView />}
+        ></Route>
         <Route path="/*" element={<Error />}></Route>
       </Routes>
     </BrowserRouter>
