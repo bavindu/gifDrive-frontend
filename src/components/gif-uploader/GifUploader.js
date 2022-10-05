@@ -5,7 +5,7 @@ import UploadingModal from "../uploadingModal/UploadingModal";
 import toast, { Toaster } from "react-hot-toast";
 import "./gif-uploader.css";
 
-export default function GifUploader({ loadGifData }) {
+export default function GifUploader({ loadGifData, uploadedGifName }) {
   const [files, setFiles] = useState([]);
   const [progressInfos, setProgressInfos] = useState([]);
   const [isUploading, setIsUploading] = useState(false);
@@ -13,7 +13,20 @@ export default function GifUploader({ loadGifData }) {
     acceptedFiles.forEach((file) => {
       console.log("file type", file.type);
       if (file.type == "image/gif") {
-        setFiles([...files, file]);
+        if (
+          files.find((item) => item.name == file.name) ||
+          uploadedGifName.find((item) => item == file.name)
+        ) {
+          toast.error(`${file.name} already exist`);
+        } else {
+          if (file.size > 10000000) {
+            toast.error(`File Size of ${file.name} is Greated than 10MB`);
+          } else {
+            setFiles([...files, file]);
+          }
+        }
+      } else {
+        toast.error(`${file.name} Invalid File Type`);
       }
     });
   };
@@ -57,12 +70,7 @@ export default function GifUploader({ loadGifData }) {
     <>
       <div>
         <div className="container my-8 mx-auto flex justify-center">
-          <Dropzone
-            onDrop={handleDrop}
-            accept="image/gif"
-            minSize={1024}
-            maxSize={3072000}
-          >
+          <Dropzone onDrop={handleDrop} accept="image/gif">
             {({
               getRootProps,
               getInputProps,
@@ -112,6 +120,7 @@ export default function GifUploader({ loadGifData }) {
           <UploadingModal files={files} progressInfos={progressInfos} />
         )}
       </div>
+      <Toaster />
     </>
   );
 }

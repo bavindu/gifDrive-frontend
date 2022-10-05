@@ -141,7 +141,10 @@ export default function User() {
       </div>
       <div className="container my-8 mx-auto flex justify-center">
         <div>
-          <GifUploader loadGifData={loadGifData} />
+          <GifUploader
+            loadGifData={loadGifData}
+            uploadedGifName={Object.values(userObj.gifsNames)}
+          />
         </div>
       </div>
       {showModal && (
