@@ -3,7 +3,7 @@ import GifModalTag from "../gif-modal-tag/GifModalTag";
 import toast, { Toaster } from "react-hot-toast";
 
 export default function GifModal({
-  gif,
+  gifKey,
   name,
   currentTags,
   publicUrl,
@@ -60,12 +60,12 @@ export default function GifModal({
     if (!checkNameValidity()) {
       toast.error("GIF name is invalid!");
     }
-    onGifSaveClick({ gif, newName, tags });
+    onGifSaveClick({ gifKey, newName, tags });
     console.log(newName, tags);
   };
 
   const onDeleteClick = () => {
-    onGifDeleteClick(gif);
+    onGifDeleteClick(gifKey);
   };
 
   const conCopyClick = () => {
@@ -137,13 +137,6 @@ export default function GifModal({
               Copy
             </button>
           </div>
-          {/* <input
-            id="gif-sharing-url"
-            type="text"
-            readOnly
-            className="mb-4 mt-1 w-full p-2 text-gray-400 text-sm font-semibold rounded-md bg-gray-100"
-            defaultValue={`${urlObj.origin}/sharedView/${publicUrl}`}
-          /> */}
         </div>
         <div className="text-right">
           <button

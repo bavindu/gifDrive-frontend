@@ -11,11 +11,13 @@ import Gif from "../gif/Gif";
 import UploadingModal from "../uploadingModal/UploadingModal";
 
 export default function User() {
+  console.log("User View Intialized");
   const navigate = useNavigate();
-  const isUploading = false;
   const [userObj, setUserObj] = useState(null);
   const [showModal, setShowModal] = useState(false);
-  const [selectedGif, setSelectedGif] = useState(null);
+  const [selectedGifKey, setSelectedGifKey] = useState(null);
+  const [displayGifObjectList, setDisplayGifObjectList] = useState([]);
+  const [realGifObjectList, setRealGifObjectList] = useState([]);
 
   useEffect(() => {
     const getUser = async () => {
@@ -24,6 +26,7 @@ export default function User() {
         const user = res.data;
         console.log("user", user);
         setUserObj(user);
+        generateGifObjecList(user);
       } else {
         authService.logOut();
         navigate("/login");
@@ -36,26 +39,44 @@ export default function User() {
     });
   }, []);
 
-  const onGifClik = (gif) => {
-    setSelectedGif(gif);
-    setShowModal(true);
-    console.log(showModal);
-    console.log("Gif Click");
+  const generateGifObjecList = (user) => {
+    const gifObjectList = [];
+    user.gifsList.forEach((item) => {
+      const key = item.name;
+      const obj = {
+        key: key,
+        url: item.url,
+        name: user.gifsNames[key],
+        tags: user.gifsTags[key],
+      };
+      gifObjectList.push(obj);
+    });
+    if (gifObjectList.length > 0) {
+      setDisplayGifObjectList([...gifObjectList]);
+      setRealGifObjectList([...gifObjectList]);
+    }
   };
 
   const getGifList = () => {
-    return userObj.gifsList.map((gif, index) => {
+    return displayGifObjectList.map((item, index) => {
       return (
         <Gif
-          gif={gif}
-          userID={userObj.userID}
+          gifKey={item.key}
+          url={item.url}
           key={index}
-          name={userObj.gifsNames[gif.name]}
-          tags={userObj.gifsTags[gif.name]}
+          name={item.name}
+          tags={item.tags}
           onGifClik={onGifClik}
         />
       );
     });
+  };
+
+  const onGifClik = (gifkey) => {
+    setSelectedGifKey(gifkey);
+    setShowModal(true);
+    console.log(showModal);
+    console.log("Gif Click");
   };
 
   const onLogOutClick = () => {
@@ -69,14 +90,15 @@ export default function User() {
       const user = res.data;
       console.log("user", user);
       setUserObj(user);
+      generateGifObjecList(user);
     }
   };
 
-  const onGifSaveClick = async (gifSaveObj) => {
+  const onGifSaveClick = async ({ gifKey, newName, tags }) => {
     const payLoad = {
-      key: gifSaveObj.gif.name,
-      newName: gifSaveObj.newName,
-      tags: gifSaveObj.tags,
+      key: gifKey,
+      newName: newName,
+      tags: tags,
       email: userObj.email,
       userID: userObj.userID,
     };
@@ -90,10 +112,10 @@ export default function User() {
     }
   };
 
-  const onGifDeleteClick = async (gif) => {
+  const onGifDeleteClick = async (gifKey) => {
     const payload = {
       email: userObj.email,
-      key: gif.name,
+      key: gifKey,
     };
     const deleteRes = await gifService.deleteGif(payload);
     if (deleteRes) {
@@ -103,6 +125,21 @@ export default function User() {
       toast.error("Gif Delete Error");
     }
     setShowModal(false);
+  };
+
+  const onChangeSearchText = (value) => {
+    console.log(value);
+    if (value && value.length > 0) {
+      const result = realGifObjectList.filter((gifObj) => {
+        return (
+          gifObj.name.includes(value) ||
+          gifObj.tags.find((item) => item.includes(value))
+        );
+      });
+      setDisplayGifObjectList([...result]);
+    } else {
+      setDisplayGifObjectList([...realGifObjectList]);
+    }
   };
 
   return (
@@ -123,43 +160,47 @@ export default function User() {
           </button>
         </div>
       </nav>
-      <div className="container my-6 mx-auto">
-        <input
-          placeholder="Search your GIFs by name or tags..."
-          className="py-4 px-4 w-full drop-shadow-sm rounded-md outline-blue-100"
-        />
-      </div>
-      <div className="container my-8 mx-auto flex justify-center">
-        <div className="w-full xl:w-2/3">
-          <div className="py-4 px-4 my-4 bg-white rounded-md drop-shadow-sm flex flex-wrap items-center gap-4">
-            {userObj &&
-              userObj.gifsList &&
-              userObj.gifsList.length > 0 &&
-              getGifList()}
+      {userObj && (
+        <div>
+          <div className="container my-6 mx-auto">
+            <input
+              placeholder="Search your GIFs by name or tags..."
+              className="py-4 px-4 w-full drop-shadow-sm rounded-md outline-blue-100"
+              onChange={(e) => {
+                onChangeSearchText(e.target.value);
+              }}
+            />
+          </div>
+          <div className="container my-8 mx-auto flex justify-center">
+            <div className="w-full xl:w-2/3">
+              <div className="py-4 px-4 my-4 bg-white rounded-md drop-shadow-sm flex flex-wrap items-center gap-4">
+                {userObj.gifsList &&
+                  userObj.gifsList.length > 0 &&
+                  getGifList()}
+              </div>
+            </div>
+          </div>
+          <div className="container my-8 mx-auto flex justify-center">
+            <div>
+              <GifUploader
+                loadGifData={loadGifData}
+                uploadedGifName={Object.values(userObj.gifsNames)}
+              />
+            </div>
           </div>
         </div>
-      </div>
-      <div className="container my-8 mx-auto flex justify-center">
-        <div>
-          <GifUploader
-            loadGifData={loadGifData}
-            uploadedGifName={Object.values(userObj.gifsNames)}
-          />
-        </div>
-      </div>
+      )}
       {showModal && (
         <GifModal
-          gif={selectedGif}
-          userID={userObj.userID}
-          name={userObj.gifsNames[selectedGif.name]}
-          currentTags={userObj.gifsTags[selectedGif.name]}
-          publicUrl={userObj.gifsPublicUrls[selectedGif.name]}
+          gifKey={selectedGifKey}
+          name={userObj.gifsNames[selectedGifKey]}
+          currentTags={userObj.gifsTags[selectedGifKey]}
+          publicUrl={userObj.gifsPublicUrls[selectedGifKey]}
           setShowModal={setShowModal}
           onGifSaveClick={onGifSaveClick}
           onGifDeleteClick={onGifDeleteClick}
         />
       )}
-      {isUploading && <UploadingModal />}
       <Toaster />
     </>
   );

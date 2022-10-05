@@ -32,8 +32,8 @@ export default function GifUploader({ loadGifData, uploadedGifName }) {
   };
 
   const onUploadClick = () => {
-    setIsUploading(true);
     if (files.length > 0) {
+      setIsUploading(true);
       const uploadFilePromiser = [];
       files.forEach((file, i) => {
         uploadFilePromiser.push(
@@ -41,10 +41,11 @@ export default function GifUploader({ loadGifData, uploadedGifName }) {
             let percentCompleted = Math.round(
               (progressEvent.loaded * 100) / progressEvent.total
             );
-            let newProgressInfos = [...progressInfos];
-            newProgressInfos[i] = percentCompleted;
-            setProgressInfos(newProgressInfos);
-            console.log("percentageList", progressInfos);
+            console.log(file.name, i, percentCompleted);
+            console.log("Before percentageList", progressInfos);
+            const copyProgressInfos = [...progressInfos];
+            copyProgressInfos[i] = percentCompleted;
+            setProgressInfos(copyProgressInfos);
           })
         );
       });
