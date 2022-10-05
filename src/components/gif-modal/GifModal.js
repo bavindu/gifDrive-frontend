@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useRef, useState } from "react";
 import GifModalTag from "../gif-modal-tag/GifModalTag";
 import toast, { Toaster } from "react-hot-toast";
 
@@ -6,6 +6,7 @@ export default function GifModal({
   gif,
   name,
   currentTags,
+  publicUrl,
   setShowModal,
   onGifSaveClick,
   onGifDeleteClick,
@@ -13,8 +14,10 @@ export default function GifModal({
   if (!currentTags) {
     currentTags = [];
   }
+  const urlObj = window.location;
   const [newName, setNewName] = useState(name);
   const [tags, setTags] = useState(currentTags);
+  const copyUrl = useRef(null);
   const getGifTags = () => {
     return tags.map((tagName, index) => {
       return (
@@ -64,6 +67,12 @@ export default function GifModal({
   const onDeleteClick = () => {
     onGifDeleteClick(gif);
   };
+
+  const conCopyClick = () => {
+    if (copyUrl.current.value) {
+      navigator.clipboard.writeText(copyUrl.current.value);
+    }
+  };
   return (
     <div
       className="fixed top-0 left-0 w-full h-full bg-gray-700/40 flex items-center justify-center modal-wrapper"
@@ -104,21 +113,41 @@ export default function GifModal({
             </div>
           </div>
         </div>
+
         <div className="mb-4">
           <label htmlFor="gif-sharing-url" className="font-bold block w-full">
             Public URL
           </label>
-          <input
+          <div className="relative w-full">
+            <input
+              type="search"
+              id="search-dropdown"
+              readOnly
+              ref={copyUrl}
+              value={`${urlObj.origin}/sharedView/${publicUrl}`}
+              className="block p-2.5 w-full z-20 text-sm  rounded-lg border-l-2 border text-gray-400 text-sm font-semibold rounded-md bg-gray-100"
+            />
+            <button
+              type="submit"
+              onClick={() => {
+                conCopyClick();
+              }}
+              className="absolute top-0 right-0 p-2.5 text-sm font-medium text-white bg-blue-700 rounded-r-lg border border-blue-700 hover:bg-blue-800 focus:ring-4 focus:outline-none focus:ring-blue-300 dark:bg-blue-600 dark:hover:bg-blue-700 dark:focus:ring-blue-800"
+            >
+              Copy
+            </button>
+          </div>
+          {/* <input
             id="gif-sharing-url"
             type="text"
-            disabled=""
+            readOnly
             className="mb-4 mt-1 w-full p-2 text-gray-400 text-sm font-semibold rounded-md bg-gray-100"
-            defaultValue="http://localhost/g/fn839nd3i2od1d89ni2d"
-          />
+            defaultValue={`${urlObj.origin}/sharedView/${publicUrl}`}
+          /> */}
         </div>
         <div className="text-right">
           <button
-            className="py-1 px-8 bg-red-800 text-white rounded-md text-lg cursor-pointer font-semibold"
+            className="py-1 px-8 bg-red-800 text-white rounded-md text-lg cursor-pointer font-semibold m-1"
             onClick={() => {
               onDeleteClick();
             }}
@@ -126,7 +155,7 @@ export default function GifModal({
             Delete
           </button>
           <button
-            className="py-1 px-8 bg-slate-800 text-white rounded-md text-lg cursor-pointer font-semibold"
+            className="py-1 px-8 bg-slate-800 text-white rounded-md text-lg cursor-pointer font-semibold m-1"
             onClick={() => {
               onSaveClick();
             }}
@@ -134,7 +163,7 @@ export default function GifModal({
             Save
           </button>
           <button
-            className="py-1 px-8 bg-gray-400 text-white rounded-md text-lg cursor-pointer font-semibold"
+            className="py-1 px-8 bg-gray-400 text-white rounded-md text-lg cursor-pointer font-semibold m-1"
             data-close-modal=""
             onClick={() => {
               setShowModal(false);

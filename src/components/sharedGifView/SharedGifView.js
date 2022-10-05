@@ -4,6 +4,7 @@ import authService from "../../services/auth.service";
 import gifService from "../../services/gif.service";
 import userService from "../../services/user.service";
 import utilService from "../../utils/util.service";
+import toast, { Toaster } from "react-hot-toast";
 
 export default function SharedGifView() {
   const navigate = useNavigate();
@@ -21,9 +22,12 @@ export default function SharedGifView() {
       } else {
         let res = await userService.getUser();
         let gifRes = await gifService.getGifByPublicUrl(gifPublicLink);
-        if (res && res.data && gifRes && gifRes.data) {
-          const user = res.data;
-          setPublicGif(gifRes.data);
+        if (res && res.data) {
+          if (gifRes && gifRes.data) {
+            setPublicGif(gifRes.data);
+          } else {
+            toast.error("Invalid Link");
+          }
         } else {
           authService.logOut();
           navigate("/login", { state: { gifUrl: gifPublicLink } });
@@ -56,6 +60,7 @@ export default function SharedGifView() {
       <div className="container my-8 mx-auto flex justify-center">
         <h1>{publicGif && publicGif.name}</h1>
       </div>
+      <Toaster />
     </>
   );
 }

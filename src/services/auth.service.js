@@ -3,16 +3,11 @@ import API_URL from "../constant/api";
 import TOKEN_KEY from "../constant/app";
 
 const register = async (name, email, password) => {
-  const res = await axios.post(API_URL + "/register", {
+  return axios.post(API_URL + "/register", {
     name,
     email,
     password,
   });
-  if (res) {
-    return true;
-  } else {
-    return false;
-  }
 };
 
 const authenticate = async (email, password) => {
@@ -24,13 +19,15 @@ const authenticate = async (email, password) => {
     if (res && res.data && res.data.email && res.data.token) {
       console.log(res);
       localStorage.setItem(TOKEN_KEY, JSON.stringify(res.data));
-      return true;
+      return { data: res.data };
     } else {
-      return false;
+      return { error: "Login Error" };
     }
   } catch (error) {
     console.error(error);
-    return false;
+    return {
+      error: error?.response?.data ? error?.response?.data : "Login Error",
+    };
   }
 };
 

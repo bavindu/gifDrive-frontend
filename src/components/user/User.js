@@ -150,6 +150,7 @@ export default function User() {
           userID={userObj.userID}
           name={userObj.gifsNames[selectedGif.name]}
           currentTags={userObj.gifsTags[selectedGif.name]}
+          publicUrl={userObj.gifsPublicUrls[selectedGif.name]}
           setShowModal={setShowModal}
           onGifSaveClick={onGifSaveClick}
           onGifDeleteClick={onGifDeleteClick}

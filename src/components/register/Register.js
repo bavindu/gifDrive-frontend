@@ -7,7 +7,6 @@ export default function Register() {
   const [name, setName] = useState("");
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
-  const navigate = useNavigate();
 
   const notify = (message, isSuccess) => {
     isSuccess ? toast.success(message) : toast.error(message);
@@ -28,22 +27,50 @@ export default function Register() {
     }
   };
 
-  const onNotifyClick = (e) => {
-    e.preventDefault();
-    notify();
+  const validateDetails = () => {
+    let errorList = [];
+    setName(name.trim());
+    setEmail(email.trim());
+    setPassword(password.trim());
+    const validEmail = email.match(/^([\w.%+-]+)@([\w-]+\.)+([\w]{2,})$/i);
+    const validName = name.length > 0;
+    const validPassword = password.length > 0;
+    if (!validEmail) {
+      errorList.push("Invalid Email");
+    }
+    if (!validName) {
+      errorList.push("Empty Name");
+    }
+    if (!validPassword) {
+      errorList.push("Empty Password");
+    }
+    if (errorList.length > 0) {
+      let errorMsg = "";
+      errorList.forEach((item) => (errorMsg = errorMsg + item + "\n"));
+      toast.error(errorMsg);
+      return false;
+    } else {
+      return true;
+    }
   };
 
   const onRegisterClick = async (e) => {
     e.preventDefault();
     console.log(name, email, password);
-    const registerRes = await authService.register(name, email, password);
-    if (registerRes) {
-      setName("");
-      setEmail("");
-      setPassword("");
-      notify("Registered Sccuessfull", true);
-    } else {
-      notify("Registered Error");
+    if (validateDetails()) {
+      try {
+        const res = await authService.register(name, email, password);
+        if (res) {
+          setName("");
+          setEmail("");
+          setPassword("");
+          notify("Registered Sccuessfull", true);
+        }
+      } catch (error) {
+        notify(
+          error?.response?.data ? error?.response?.data : "Resgister Error"
+        );
+      }
     }
   };
 

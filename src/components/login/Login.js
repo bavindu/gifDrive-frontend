@@ -31,19 +31,41 @@ export default function Login() {
     }
   };
 
+  const validateInputs = () => {
+    let errorList = [];
+    setEmail(email.trim());
+    setPassword(password.trim());
+    const validEmail = email.match(/^([\w.%+-]+)@([\w-]+\.)+([\w]{2,})$/i);
+    const validPassword = password.length > 0;
+    if (!validEmail) {
+      errorList.push("Invalid Email");
+    }
+    if (!validPassword) {
+      errorList.push("Empty Password");
+    }
+    if (errorList.length > 0) {
+      let errorMsg = "";
+      errorList.forEach((item) => (errorMsg = errorMsg + item + "\n"));
+      toast.error(errorMsg);
+      return false;
+    } else {
+      return true;
+    }
+  };
+
   const onSubmitClick = async (e) => {
     e.preventDefault();
     console.log(email, password);
-    if (email && password) {
+    if (validateInputs()) {
       const res = await authService.authenticate(email, password);
-      if (res) {
+      if (res.data) {
         if (location.state && location.state.gifUrl) {
           navigate(`/sharedView/${location.state.gifUrl}`);
         } else {
           navigate("/user");
         }
-      } else {
-        toast.error("Invalid Credential");
+      } else if (res.error) {
+        toast.error(res.error);
       }
     }
   };
